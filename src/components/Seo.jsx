@@ -5,7 +5,7 @@ const SITE_NAME = "Shiyanax";
 const DEFAULT_DESCRIPTION =
   "Track cryptocurrency prices, exchanges, market stats, and crypto news with Shiyanax.";
 const DEFAULT_OG_IMAGE =
-  "https://cdn.jsdelivr.net/gh/shiyanax/crypto@main/public/og-image.png";
+  "https://cdn.jsdelivr.net/gh/shiyanax/crypto@b215e79/public/og-image.png";
 
 const getImageType = (url) => {
   if (!url) return "image/png";
