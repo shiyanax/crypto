@@ -4,6 +4,15 @@ import { useLocation } from "react-router";
 const SITE_NAME = "Shiyanax";
 const DEFAULT_DESCRIPTION =
   "Track cryptocurrency prices, exchanges, market stats, and crypto news with Shiyanax.";
+const DEFAULT_OG_IMAGE =
+  "https://cdn.jsdelivr.net/gh/shiyanax/crypto@main/public/og-image.png";
+
+const getImageType = (url) => {
+  if (!url) return "image/png";
+  if (url.includes(".jpg") || url.includes(".jpeg")) return "image/jpeg";
+  if (url.includes(".webp")) return "image/webp";
+  return "image/png";
+};
 
 const setMetaTag = (selector, attributes) => {
   let element = document.head.querySelector(selector);
@@ -36,7 +45,7 @@ const Seo = ({ title, description = DEFAULT_DESCRIPTION, image }) => {
   useEffect(() => {
     const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
     const canonicalUrl = `${window.location.origin}${location.pathname}`;
-    const ogImage = image || `${window.location.origin}/cryptocurrency.svg`;
+    const ogImage = image || DEFAULT_OG_IMAGE;
 
     document.title = pageTitle;
     setCanonical(canonicalUrl);
@@ -65,6 +74,14 @@ const Seo = ({ title, description = DEFAULT_DESCRIPTION, image }) => {
       property: "og:image",
       content: ogImage,
     });
+    setMetaTag('meta[property="og:image:secure_url"]', {
+      property: "og:image:secure_url",
+      content: ogImage,
+    });
+    setMetaTag('meta[property="og:image:type"]', {
+      property: "og:image:type",
+      content: getImageType(ogImage),
+    });
     setMetaTag('meta[name="twitter:card"]', {
       name: "twitter:card",
       content: "summary_large_image",
@@ -76,6 +93,10 @@ const Seo = ({ title, description = DEFAULT_DESCRIPTION, image }) => {
     setMetaTag('meta[name="twitter:description"]', {
       name: "twitter:description",
       content: description,
+    });
+    setMetaTag('meta[name="twitter:image"]', {
+      name: "twitter:image",
+      content: ogImage,
     });
   }, [description, image, location.pathname, title]);
 
