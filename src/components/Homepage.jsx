@@ -1,3 +1,4 @@
+import { lazy, Suspense, useState } from "react";
 import { millify } from "millify";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router";
@@ -6,8 +7,9 @@ import { useGetGlobalStatsQuery } from "../services/cryptoApi";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Skeleton } from "./ui/skeleton";
 import Cryptocurrencies from "./Cryptocurrencies";
-import News from "./News";
 import Seo from "./Seo";
+
+const News = lazy(() => import("./News"));
 
 const StatCard = ({ title, value }) => (
   <Card>
@@ -23,7 +25,10 @@ const StatCard = ({ title, value }) => (
 );
 
 const Homepage = () => {
-  const { data: globalData, isFetching } = useGetGlobalStatsQuery();
+  const { data: globalData, isFetching } = useGetGlobalStatsQuery(undefined, {
+    refetchOnMountOrArgChange: false,
+  });
+  const [showNews, setShowNews] = useState(false);
   const globalStats = globalData?.data;
 
   const stats = [
@@ -86,23 +91,35 @@ const Homepage = () => {
             View all <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-        <Cryptocurrencies simplified />
+        <Cryptocurrencies simplified onLoaded={() => setShowNews(true)} />
       </section>
 
-      <section>
-        <div className="mb-5 flex items-center justify-between gap-4">
-          <h2 className="text-2xl font-bold tracking-normal">
-            Latest Crypto News
-          </h2>
-          <Link
-            className="inline-flex items-center gap-1 text-sm font-semibold text-zinc-700 hover:text-zinc-950"
-            to="/news"
+      {showNews && !isFetching && (
+        <section>
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <h2 className="text-2xl font-bold tracking-normal">
+              Latest Crypto News
+            </h2>
+            <Link
+              className="inline-flex items-center gap-1 text-sm font-semibold text-zinc-700 hover:text-zinc-950"
+              to="/news"
+            >
+              View all <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <Suspense
+            fallback={
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <Skeleton key={index} className="h-80" />
+                ))}
+              </div>
+            }
           >
-            View all <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-        <News simplified />
-      </section>
+            <News simplified />
+          </Suspense>
+        </section>
+      )}
     </div>
   );
 };

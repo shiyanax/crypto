@@ -33,7 +33,7 @@ import { Skeleton } from "./ui/skeleton";
 import Seo from "./Seo";
 
 const FALLBACK_NEWS_IMAGE =
-  "https://images.unsplash.com/photo-1640161704729-cbe966a08476?auto=format&fit=crop&w=300&q=80";
+  "https://images.unsplash.com/photo-1640161704729-cbe966a08476?auto=format&fit=crop&w=160&q=70";
 
 ChartJS.register(
   CategoryScale,
@@ -65,17 +65,22 @@ const CryptoDetails = () => {
     data: coin,
     isFetching: isFetchingCoin,
     isError: isCoinError,
-  } = useGetCryptoDetailsQuery(coinId);
+  } = useGetCryptoDetailsQuery(coinId, {
+    refetchOnMountOrArgChange: false,
+  });
   const { data: history, isFetching: isFetchingHistory } =
-    useGetCryptoHistoryQuery({ coinId, timeperiod });
+    useGetCryptoHistoryQuery(
+      { coinId, timeperiod },
+      { refetchOnMountOrArgChange: false }
+    );
   const hasNewsApiKey = Boolean(import.meta.env.VITE_NEWSDATA_API_KEY);
   const {
     data: relatedNewsData,
     isFetching: isFetchingRelatedNews,
     isError: isRelatedNewsError,
   } = useGetCryptoNewsQuery(
-    { newsCategory: coin?.name || "cryptocurrency", count: 5 },
-    { skip: !coin?.name || !hasNewsApiKey }
+    { newsCategory: coin?.name || "cryptocurrency", count: 3 },
+    { skip: !coin?.name || !hasNewsApiKey, refetchOnMountOrArgChange: false }
   );
 
   if (isFetchingCoin) {
@@ -199,6 +204,7 @@ const CryptoDetails = () => {
             src={coin.image?.large}
             alt={coin.name}
             className="h-16 w-16 rounded-full"
+            decoding="async"
           />
           <div>
             <h1 className="text-3xl font-bold tracking-normal">
@@ -320,7 +326,7 @@ const CryptoDetails = () => {
 
               {hasNewsApiKey && isFetchingRelatedNews && (
                 <div className="space-y-3">
-                  {Array.from({ length: 4 }).map((_, index) => (
+                  {Array.from({ length: 3 }).map((_, index) => (
                     <Skeleton key={index} className="h-24 w-full" />
                   ))}
                 </div>
@@ -335,7 +341,7 @@ const CryptoDetails = () => {
               {hasNewsApiKey &&
                 !isFetchingRelatedNews &&
                 !isRelatedNewsError &&
-                relatedNews.slice(0, 5).map((article) => (
+                relatedNews.slice(0, 3).map((article) => (
                   <a
                     key={article.article_id || article.link}
                     href={article.link}
@@ -347,6 +353,8 @@ const CryptoDetails = () => {
                       src={article.image_url || FALLBACK_NEWS_IMAGE}
                       alt={article.title}
                       className="h-16 w-16 shrink-0 rounded-md object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="min-w-0">
                       <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-950">

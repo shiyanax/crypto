@@ -1,12 +1,13 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router";
-import {
-  Exchanges,
-  Homepage,
-  News,
-  Cryptocurrencies,
-  CryptoDetails,
-  Navbar,
-} from "./components";
+import Navbar from "./components/Navbar";
+import Loader from "./components/Loader";
+
+const Homepage = lazy(() => import("./components/Homepage"));
+const Exchanges = lazy(() => import("./components/Exchanges"));
+const News = lazy(() => import("./components/News"));
+const Cryptocurrencies = lazy(() => import("./components/Cryptocurrencies"));
+const CryptoDetails = lazy(() => import("./components/CryptoDetails"));
 
 const App = () => {
   const currentYear = new Date().getFullYear();
@@ -17,13 +18,15 @@ const App = () => {
 
       <div className="flex min-h-screen flex-col md:pl-72">
         <main className="flex-1 px-4 pb-10 pt-24 sm:px-6 md:px-8 md:pt-8">
-          <Routes>
-            <Route path="/" element={<Homepage />} />
-            <Route path="/exchanges" element={<Exchanges />} />
-            <Route path="/cryptocurrencies" element={<Cryptocurrencies />} />
-            <Route path="/crypto/:coinId" element={<CryptoDetails />} />
-            <Route path="/news" element={<News />} />
-          </Routes>
+          <Suspense fallback={<Loader />}>
+            <Routes>
+              <Route path="/" element={<Homepage />} />
+              <Route path="/exchanges" element={<Exchanges />} />
+              <Route path="/cryptocurrencies" element={<Cryptocurrencies />} />
+              <Route path="/crypto/:coinId" element={<CryptoDetails />} />
+              <Route path="/news" element={<News />} />
+            </Routes>
+          </Suspense>
         </main>
 
         <footer className="border-t border-zinc-800 bg-zinc-950 px-4 py-6 text-center text-sm text-zinc-300">

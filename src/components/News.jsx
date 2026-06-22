@@ -8,7 +8,7 @@ import { Skeleton } from "./ui/skeleton";
 import Seo from "./Seo";
 
 const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1640161704729-cbe966a08476?auto=format&fit=crop&w=900&q=80";
+  "https://images.unsplash.com/photo-1640161704729-cbe966a08476?auto=format&fit=crop&w=480&q=70";
 
 const categories = [
   "cryptocurrency",
@@ -31,11 +31,18 @@ const formatNewsDate = (date) => {
 
 const News = ({ simplified = false }) => {
   const [newsCategory, setNewsCategory] = useState("cryptocurrency");
-  const count = simplified ? 6 : 12;
-  const { data, isFetching, isError } = useGetCryptoNewsQuery({
-    newsCategory,
-    count,
-  });
+  const count = simplified ? 3 : 12;
+  const hasNewsApiKey = Boolean(import.meta.env.VITE_NEWSDATA_API_KEY);
+  const { data, isFetching, isError } = useGetCryptoNewsQuery(
+    {
+      newsCategory,
+      count,
+    },
+    {
+      skip: !hasNewsApiKey,
+      refetchOnMountOrArgChange: false,
+    }
+  );
 
   const news = data?.results || [];
 
@@ -55,7 +62,7 @@ const News = ({ simplified = false }) => {
     );
   }
 
-  if (isError) {
+  if (!hasNewsApiKey || isError) {
     return (
       <Card>
         {!simplified && (
@@ -65,7 +72,7 @@ const News = ({ simplified = false }) => {
           />
         )}
         <CardContent className="p-6 text-sm text-zinc-500">
-          Unable to load crypto news. Check your NewsData.io API key in `.env`.
+          News unavailable.
         </CardContent>
       </Card>
     );
@@ -110,6 +117,8 @@ const News = ({ simplified = false }) => {
                 src={item.image_url || FALLBACK_IMAGE}
                 alt={item.title}
                 className="h-44 w-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
               <CardContent className="flex h-[calc(100%-11rem)] flex-col p-5">
                 <h2 className="line-clamp-2 text-lg font-bold leading-snug">

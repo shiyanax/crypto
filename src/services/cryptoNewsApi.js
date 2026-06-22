@@ -2,6 +2,9 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const cryptoNewsApi = createApi({
   reducerPath: "cryptoNewsApi",
+  keepUnusedDataFor: 600,
+  refetchOnFocus: false,
+  refetchOnReconnect: false,
   baseQuery: fetchBaseQuery({
     baseUrl: "https://newsdata.io/api/1",
   }),

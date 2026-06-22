@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { millify } from "millify";
 import { Link } from "react-router";
 
@@ -9,15 +9,26 @@ import { Input } from "./ui/input";
 import { Skeleton } from "./ui/skeleton";
 import Seo from "./Seo";
 
-const Cryptocurrencies = ({ simplified = false }) => {
+const Cryptocurrencies = ({ simplified = false, onLoaded }) => {
   const count = simplified ? 12 : 100;
-  const { data: cryptosList, isFetching, isError } = useGetCryptosQuery(count);
+  const { data: cryptosList, isFetching, isError } = useGetCryptosQuery(
+    count,
+    {
+      refetchOnMountOrArgChange: false,
+    }
+  );
 
   const [searchTerm, setSearchTerm] = useState("");
   const cryptos =
     cryptosList?.filter((coin) =>
       coin.name.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
+
+  useEffect(() => {
+    if (!isFetching && !isError && cryptosList?.length) {
+      onLoaded?.();
+    }
+  }, [cryptosList, isError, isFetching, onLoaded]);
 
   if (isFetching) {
     return (
@@ -84,6 +95,8 @@ const Cryptocurrencies = ({ simplified = false }) => {
                       className="h-10 w-10 rounded-full"
                       src={currency.image}
                       alt={currency.name}
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
                 </CardHeader>

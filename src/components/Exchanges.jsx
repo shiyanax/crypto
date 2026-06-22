@@ -16,7 +16,12 @@ import {
 } from "./ui/table";
 
 const Exchanges = () => {
-  const { data: exchanges, isFetching, isError } = useGetExchangesQuery();
+  const { data: exchanges, isFetching, isError } = useGetExchangesQuery(
+    undefined,
+    {
+      refetchOnMountOrArgChange: false,
+    }
+  );
 
   if (isFetching) {
     return (
@@ -95,6 +100,8 @@ const Exchanges = () => {
                         src={exchange.image}
                         alt={exchange.name}
                         className="h-9 w-9 rounded-full"
+                        loading="lazy"
+                        decoding="async"
                       />
                       <span className="font-semibold text-zinc-950">
                         {exchange.name}
